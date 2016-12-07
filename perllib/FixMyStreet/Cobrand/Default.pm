@@ -669,9 +669,6 @@ sub admin_pages {
         $pages->{users} = [ _('Users'), 6 ];
         $pages->{user_edit} = [ undef, undef ];
     }
-    if ( $user->has_body_permission_to('exordefects') ) {
-        $pages->{exordefects} = [ _('Exor Defects RDI'), 10 ];
-    }
 
     return $pages;
 }
