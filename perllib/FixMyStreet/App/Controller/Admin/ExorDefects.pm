@@ -49,7 +49,9 @@ sub index : Path : Args(0) {
     );
     push @body, $csv->string;
 
-    my $problems = $c->model('DB::Problem')->search( { extra => { like => '%inspected,I1:1%' } } );
+    my $problems = $c->cobrand->problems->search( {
+        state => [ 'action scheduled' ],
+    } );
 
     while ( my $report = $problems->next ) {
         $csv->combine(
