@@ -60,8 +60,8 @@ sub index : Path : Args(0) {
             "", # defect location field, which we don't capture from inspectors
             $report->lastupdate->strftime("%H%M"), # defect time raised
             "","","","","","","", # empty fields
+            $report->get_extra_metadata('traffic_information') ? 'TM required' : 'TM none', # further description
             $report->get_extra_metadata('detailed_information'), # defect description
-            $report->get_extra_metadata('traffic_information'), # further description
         );
         push @body, $csv->string;
 
@@ -114,7 +114,7 @@ sub index : Path : Args(0) {
 
     # $c->res->content_type('text/csv; charset=utf-8');
     $c->res->content_type('text/plain; charset=utf-8');
-    # $c->res->header('content-disposition' => "attachment; filename=rdioutput.csv");
+    # $c->res->header('content-disposition' => "attachment; filename=exor_defects.rdi");
     # The RDI format is very weird CSV - each line must be wrapped in
     # double quotes.
     $c->res->body( join "", map { "\"$_\"\r\n" } @body );
