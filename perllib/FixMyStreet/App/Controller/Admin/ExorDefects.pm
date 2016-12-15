@@ -44,8 +44,7 @@ sub index : Path : Args(0) {
 
     $csv->combine(
         "H", # initial inspection type
-        "MC", # minor carriageway (changes depending on activity code)
-        "FC" # footway - seems optional if reports in this batch don't include FC activity code
+        "MC" # minor carriageway (changes depending on activity code)
     );
     push @body, $csv->string;
 
@@ -53,13 +52,15 @@ sub index : Path : Args(0) {
         state => [ 'action scheduled' ],
     } );
 
+    my $i = 1;
     while ( my $report = $problems->next ) {
+        my ($eastings, $northings) = $report->local_coords;
         $csv->combine(
             "I", # beginning of defect record
             "MC", # activity code - minor carriageway, also FC (footway)
             "", # empty field, can also be A (seen on MC) or B (seen on FC)
-            $report->id, # randomised sequence number
-            "", # defect location field, which we don't capture from inspectors
+            sprintf("%03d", $i++), # randomised sequence number
+            "${eastings}E ${northings}N", # defect location field, which we don't capture from inspectors
             $report->lastupdate->strftime("%H%M"), # defect time raised
             "","","","","","","", # empty fields
             $report->get_extra_metadata('traffic_information') ? 'TM required' : 'TM none', # further description
@@ -67,11 +68,12 @@ sub index : Path : Args(0) {
         );
         push @body, $csv->string;
 
-        my ($eastings, $northings) = $report->local_coords;
         $csv->combine(
             "J", # georeferencing record
-            $report->get_extra_metadata('size'), # defect type - SFP2: sweep and fill <1m2, POT2 also seen
-            $report->get_extra_metadata('priority'), # priority of defect
+            "SFP2", # defect type - SFP2: sweep and fill <1m2, POT2 also seen
+            $report->response_priority ?
+                $report->response_priority->external_id :
+                "x", # priority of defect
             "","", # empty fields
             $eastings, # eastings
             $northings, # northings
