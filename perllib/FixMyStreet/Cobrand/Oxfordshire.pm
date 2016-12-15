@@ -145,4 +145,12 @@ sub admin_pages {
     return $pages;
 }
 
+sub defect_types {
+    {
+        SFP2 => "SFP2: sweep and fill <1m2",
+        POT2 => "POT2",
+    };
+};
+
+
 1;

@@ -30,7 +30,7 @@ sub index : Path : Args(0) {
     my $now = DateTime->now( time_zone => FixMyStreet->time_zone || FixMyStreet->local_time_zone );
     $csv->combine(
         "G", # start of an area/sequence
-        int(rand(99999)), # randomised sequence number
+        int(rand(99999)), # area id
         "","", # must be empty
         "M T", # inspector initials
         $now->strftime("%y%m%d"), # date of inspection yymmdd
@@ -70,10 +70,10 @@ sub index : Path : Args(0) {
 
         $csv->combine(
             "J", # georeferencing record
-            "SFP2", # defect type - SFP2: sweep and fill <1m2, POT2 also seen
+            $report->get_extra_metadata('defect_type') || 'SFP2', # defect type - SFP2: sweep and fill <1m2, POT2 also seen
             $report->response_priority ?
                 $report->response_priority->external_id :
-                "x", # priority of defect
+                "2", # priority of defect
             "","", # empty fields
             $eastings, # eastings
             $northings, # northings
