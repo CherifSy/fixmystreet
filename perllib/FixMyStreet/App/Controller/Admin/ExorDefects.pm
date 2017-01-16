@@ -61,6 +61,7 @@ sub index : Path : Args(0) {
     my $i = 1;
     while ( my $report = $problems->next ) {
         my ($eastings, $northings) = $report->local_coords;
+        my $description = sprintf("%s %s", $report->external_id || "", $report->get_extra_metadata('detailed_information') || "");
         $csv->combine(
             "I", # beginning of defect record
             "MC", # activity code - minor carriageway, also FC (footway)
@@ -70,7 +71,7 @@ sub index : Path : Args(0) {
             $report->lastupdate->strftime("%H%M"), # defect time raised
             "","","","","","","", # empty fields
             $report->get_extra_metadata('traffic_information') ? 'TM required' : 'TM none', # further description
-            $report->get_extra_metadata('detailed_information'), # defect description
+            $description, # defect description
         );
         push @body, $csv->string;
 
