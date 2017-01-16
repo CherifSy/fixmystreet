@@ -150,7 +150,9 @@ sub defect_types {
         SFP2 => "SFP2: sweep and fill <1m2",
         POT2 => "POT2",
     };
-};
+}
 
+sub exor_rdi_link_id { 1989169 }
+sub exor_rdi_link_length { 50 }
 
 1;

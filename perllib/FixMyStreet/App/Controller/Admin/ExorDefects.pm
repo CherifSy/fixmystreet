@@ -18,9 +18,15 @@ sub begin : Private {
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
 
+    if ( !$c->cobrand->can('exor_rdi_link_id') ) {
+        # This only works on the Oxfordshire cobrand currently.
+        $c->detach( '/page_error_404_not_found', [] );
+    }
+
     my $csv = Text::CSV->new({ binary => 1, eol => "" });
 
     my $p_count = 0;
+    my $link_id = $c->cobrand->exor_rdi_link_id;
 
     # RDI first line is always the same
     $csv->combine("1", "1.8", "1.0.0.0", "ENHN", "");
@@ -30,7 +36,7 @@ sub index : Path : Args(0) {
     my $now = DateTime->now( time_zone => FixMyStreet->time_zone || FixMyStreet->local_time_zone );
     $csv->combine(
         "G", # start of an area/sequence
-        int(rand(99999)), # area id
+        $link_id, # area/link id, fixed value for our purposes
         "","", # must be empty
         "M T", # inspector initials
         $now->strftime("%y%m%d"), # date of inspection yymmdd
