@@ -23,6 +23,21 @@ sub index : Path : Args(0) {
         $c->detach( '/page_error_404_not_found', [] );
     }
 
+    my $parser = DateTime::Format::Strptime->new( pattern => '%d/%m/%Y' );
+    my $start_date = $parser-> parse_datetime ( $c->get_param('start_date') );
+    my $end_date = $parser-> parse_datetime ( $c->get_param('end_date') ) ;
+    my $one_day = DateTime::Duration->new( days => 1 );
+
+    my $problems = $c->cobrand->problems->search( {
+        'admin_log_entries.action' => 'inspected',
+        'admin_log_entries.whenedited' => { '>=', $start_date },
+        'admin_log_entries.whenedited' => { '<=', $end_date + $one_day },
+        # state => [ 'action scheduled' ],
+    }, {
+        join => 'admin_log_entries',
+        distinct => 1,
+    });
+
     my $csv = Text::CSV->new({ binary => 1, eol => "" });
 
     my $p_count = 0;
@@ -33,14 +48,13 @@ sub index : Path : Args(0) {
     my @body = ($csv->string);
 
     # Let's just group all defects into a single inspection/sequence for now
-    my $now = DateTime->now( time_zone => FixMyStreet->time_zone || FixMyStreet->local_time_zone );
     $csv->combine(
         "G", # start of an area/sequence
         $link_id, # area/link id, fixed value for our purposes
         "","", # must be empty
         "M T", # inspector initials
-        $now->strftime("%y%m%d"), # date of inspection yymmdd
-        $now->strftime("%H%M"), # time of inspection hhmm
+        $start_date->strftime("%y%m%d"), # date of inspection yymmdd
+        "0700", # time of inspection hhmm, set to static value for now
         "D", # inspection variant, should always be D
         "INS", # inspection type, always INS
         "N", # Area of the county - north (N) or south (S)
@@ -54,10 +68,6 @@ sub index : Path : Args(0) {
     );
     push @body, $csv->string;
 
-    my $problems = $c->cobrand->problems->search( {
-        state => [ 'action scheduled' ],
-    } );
-
     my $i = 1;
     while ( my $report = $problems->next ) {
         my ($eastings, $northings) = $report->local_coords;
@@ -68,7 +78,7 @@ sub index : Path : Args(0) {
             "", # empty field, can also be A (seen on MC) or B (seen on FC)
             sprintf("%03d", $i++), # randomised sequence number
             "${eastings}E ${northings}N", # defect location field, which we don't capture from inspectors
-            $report->lastupdate->strftime("%H%M"), # defect time raised
+            $report->inspection_log_entry->whenedited->strftime("%H%M"), # defect time raised
             "","","","","","","", # empty fields
             $report->get_extra_metadata('traffic_information') ? 'TM required' : 'TM none', # further description
             $description, # defect description
