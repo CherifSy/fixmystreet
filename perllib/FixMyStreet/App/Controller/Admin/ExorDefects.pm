@@ -18,6 +18,26 @@ sub begin : Private {
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
 
+    my @inspectors = $c->cobrand->users->search({
+        'user_body_permissions.permission_type' => 'report_inspect'
+    }, {
+            join => 'user_body_permissions',
+            distinct => 1,
+        }
+    )->all;
+    $c->stash->{inspectors} = \@inspectors;
+
+    # Default start/end date is today
+    my $now = DateTime->now( time_zone => 
+        FixMyStreet->time_zone || FixMyStreet->local_time_zone );
+    $c->stash->{start_date} = $now;
+    $c->stash->{end_date} = $now;
+
+}
+
+sub download : Path('download') : Args(0) {
+    my ( $self, $c ) = @_;
+
     if ( !$c->cobrand->can('exor_rdi_link_id') ) {
         # This only works on the Oxfordshire cobrand currently.
         $c->detach( '/page_error_404_not_found', [] );
@@ -146,9 +166,11 @@ sub index : Path : Args(0) {
     );
     push @body, $csv->string;
 
-    # $c->res->content_type('text/csv; charset=utf-8');
-    $c->res->content_type('text/plain; charset=utf-8');
-    # $c->res->header('content-disposition' => "attachment; filename=exor_defects.rdi");
+    my $start = $start_date->strftime("%Y%m%d");
+    my $end = $end_date->strftime("%Y%m%d");
+    my $filename = sprintf("exor_defects-%s-%s-%s.rdi", $start, $end, $initials);
+    $c->res->content_type('text/csv; charset=utf-8');
+    $c->res->header('content-disposition' => "attachment; filename=$filename");
     # The RDI format is very weird CSV - each line must be wrapped in
     # double quotes.
     $c->res->body( join "", map { "\"$_\"\r\n" } @body );
