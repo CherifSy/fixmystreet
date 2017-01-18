@@ -1281,6 +1281,11 @@ sub user_edit : Path('user_edit') : Args(1) {
             $user->from_body( undef );
         }
 
+        # Some cobrands (e.g. Oxfordshire) have their own custom fields on User
+        foreach (qw/initials/) {
+            $user->set_extra_metadata( $_ => $c->get_param($_) );
+        }
+
         # Has the user's from_body changed since we fetched areas (if we ever did)?
         # If so, we need to re-fetch areas so the UI is up to date.
         if ( $user->from_body && $user->from_body->id ne $c->stash->{fetched_areas_body_id} ) {

@@ -28,15 +28,28 @@ sub index : Path : Args(0) {
     my $end_date = $parser-> parse_datetime ( $c->get_param('end_date') ) ;
     my $one_day = DateTime::Duration->new( days => 1 );
 
-    my $problems = $c->cobrand->problems->search( {
+    my %params = (
         'admin_log_entries.action' => 'inspected',
         'admin_log_entries.whenedited' => { '>=', $start_date },
         'admin_log_entries.whenedited' => { '<=', $end_date + $one_day },
         # state => [ 'action scheduled' ],
-    }, {
-        join => 'admin_log_entries',
-        distinct => 1,
-    });
+    );
+
+    my $initials = "XX";
+    if ( $c->get_param('user_id') ) {
+        my $uid = $c->get_param('user_id');
+        $params{'admin_log_entries.user_id'} = $uid;
+        my $user = $c->model('DB::User')->find( { id => $uid } );
+        $initials = $user->initials if $user;
+    }
+
+    my $problems = $c->cobrand->problems->search(
+        \%params,
+        {
+            join => 'admin_log_entries',
+            distinct => 1,
+        }
+    );
 
     my $csv = Text::CSV->new({ binary => 1, eol => "" });
 
@@ -52,7 +65,7 @@ sub index : Path : Args(0) {
         "G", # start of an area/sequence
         $link_id, # area/link id, fixed value for our purposes
         "","", # must be empty
-        "M T", # inspector initials
+        $initials, # inspector initials
         $start_date->strftime("%y%m%d"), # date of inspection yymmdd
         "0700", # time of inspection hhmm, set to static value for now
         "D", # inspection variant, should always be D
