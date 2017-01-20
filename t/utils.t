@@ -91,6 +91,9 @@ is Utils::prettify_dt($dt, 1), $dt->strftime("%H:%M, %e %b %Y");
 $dt = DateTime->now->subtract(days => 400);
 is Utils::prettify_dt($dt), $dt->strftime("%H:%M, %a %e %B %Y");
 
+is Utils::prettify_duration(12*5*7*86400+3600+60+1, 'year'), '1 year';
+is Utils::prettify_duration(25*5*7*86400+3600+60+1, 'year'), '2 years';
+is Utils::prettify_duration(5*7*86400+3600+60+1, 'month'), '1 month';
 is Utils::prettify_duration(7*86400+3600+60+1, 'week'), '1 week';
 is Utils::prettify_duration(86400+3600+60+1, 'day'), '1 day';
 is Utils::prettify_duration(86400+3600+60+1, 'hour'), '1 day, 1 hour';
