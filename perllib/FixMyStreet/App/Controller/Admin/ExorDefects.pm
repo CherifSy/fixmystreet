@@ -18,6 +18,12 @@ sub begin : Private {
 sub index : Path : Args(0) {
     my ( $self, $c ) = @_;
 
+    foreach (qw(error_message start_date end_date user_id)) {
+        if ( defined $c->flash->{$_} ) {
+            $c->stash->{$_} = $c->flash->{$_};
+        }
+    }
+
     my @inspectors = $c->cobrand->users->search({
         'user_body_permissions.permission_type' => 'report_inspect'
     }, {
@@ -30,8 +36,8 @@ sub index : Path : Args(0) {
     # Default start/end date is today
     my $now = DateTime->now( time_zone => 
         FixMyStreet->time_zone || FixMyStreet->local_time_zone );
-    $c->stash->{start_date} = $now;
-    $c->stash->{end_date} = $now;
+    $c->stash->{start_date} ||= $now;
+    $c->stash->{end_date} ||= $now;
 
 }
 
@@ -49,17 +55,20 @@ sub download : Path('download') : Args(0) {
     my $one_day = DateTime::Duration->new( days => 1 );
 
     my %params = (
-        state => [ 'action scheduled' ],
-        'admin_log_entries.action' => 'inspected',
-        'admin_log_entries.whenedited' => { '>=', $start_date },
-        'admin_log_entries.whenedited' => { '<=', $end_date + $one_day },
+        -and => [
+            state => [ 'action scheduled' ],
+            'admin_log_entries.action' => 'inspected',
+            'admin_log_entries.whenedited' => { '>=', $start_date },
+            'admin_log_entries.whenedited' => { '<=', $end_date + $one_day },
+        ]
     );
 
     my $initials = "XX";
+    my $user;
     if ( $c->get_param('user_id') ) {
         my $uid = $c->get_param('user_id');
         $params{'admin_log_entries.user_id'} = $uid;
-        my $user = $c->model('DB::User')->find( { id => $uid } );
+        $user = $c->model('DB::User')->find( { id => $uid } );
         $initials = $user->initials if $user;
     }
 
@@ -70,6 +79,19 @@ sub download : Path('download') : Args(0) {
             distinct => 1,
         }
     );
+
+    if ( !$problems->count ) {
+        if ( defined $user ) {
+            $c->flash->{error_message} = _("No inspections by that inspector in the selected date range.");
+        } else {
+            $c->flash->{error_message} = _("No inspections in the selected date range.");
+        }
+        $c->flash->{start_date} = $start_date;
+        $c->flash->{end_date} = $end_date;
+        $c->flash->{user_id} = $user->id if $user;
+        $c->res->redirect( $c->uri_for( '' ) );
+    }
+
 
     my $csv = Text::CSV->new({ binary => 1, eol => "" });
 

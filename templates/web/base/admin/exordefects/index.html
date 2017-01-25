@@ -1,5 +1,10 @@
 [% INCLUDE 'admin/header.html' title=loc('Download Exor RDI') -%]
 
+[% IF error_message %]
+    <h2>Error</h2>
+    <p>[% error_message %]</p>
+[% END %]
+
 <form method="get" action="[% c.uri_for('download') %]" enctype="application/x-www-form-urlencoded" accept-charset="utf-8">
     <p>
     <label for="start_date">[% loc('Start Date:') %]</label><input type="text" class="form-control"
@@ -17,7 +22,7 @@
     [% loc('Inspector:') %] <select class="form-control" id='user_id' name='user_id'>
         <option value=''>[% loc('All inspectors') %]</option>
         [% FOR inspector IN inspectors %]
-            <option value="[% inspector.id %]">[% inspector.name %] ([% inspector.initials %])</option>
+            <option value="[% inspector.id %]" [% 'selected' IF user_id == inspector.id %]>[% inspector.name %] ([% inspector.get_extra_metadata('initials') %])</option>
         [% END %]
     </select>
     </p>
