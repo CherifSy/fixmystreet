@@ -49,10 +49,10 @@ sub download : Path('download') : Args(0) {
     my $one_day = DateTime::Duration->new( days => 1 );
 
     my %params = (
+        state => [ 'action scheduled' ],
         'admin_log_entries.action' => 'inspected',
         'admin_log_entries.whenedited' => { '>=', $start_date },
         'admin_log_entries.whenedited' => { '<=', $end_date + $one_day },
-        # state => [ 'action scheduled' ],
     );
 
     my $initials = "XX";
