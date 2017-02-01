@@ -155,4 +155,12 @@ sub defect_types {
 sub exor_rdi_link_id { 1989169 }
 sub exor_rdi_link_length { 50 }
 
+sub reputation_increment_states {
+    my $states = {
+        'action scheduled' => 1,
+    };
+
+    return wantarray ? keys %{$states} : $states;
+};
+
 1;
