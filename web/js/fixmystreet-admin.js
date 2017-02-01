@@ -66,6 +66,12 @@ $(function(){
         });
     }
 
+    function fixZIndex() {
+        setTimeout(function() {
+            $('.ui-datepicker').css('z-index', 10);
+        }, 0);
+    }
+
     $( "#start_date" ).datepicker({
       defaultDate: "-1w",
       changeMonth: true,
@@ -73,7 +79,8 @@ $(function(){
       // This sets the other fields minDate to our date
       onClose: function( selectedDate ) {
         $( "#end_date" ).datepicker( "option", "minDate", selectedDate );
-      }
+      },
+      beforeShow: fixZIndex
     });
     $( "#end_date" ).datepicker({
      /// defaultDate: "+1w",
@@ -81,7 +88,8 @@ $(function(){
       dateFormat: 'dd/mm/yy' ,
       onClose: function( selectedDate ) {
         $( "#start_date" ).datepicker( "option", "maxDate", selectedDate );
-      }
+      },
+      beforeShow: fixZIndex
     });
 
     // On user edit page, hide the area/categories fields if body changes
