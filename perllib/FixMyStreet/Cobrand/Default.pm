@@ -665,7 +665,6 @@ sub admin_pages {
         $pages->{responsepriorities} = [ _('Priorities'), 4 ];
         $pages->{responsepriority_edit} = [ undef, undef ];
     };
-
     if ( $user->has_body_permission_to('user_edit') ) {
         $pages->{users} = [ _('Users'), 6 ];
         $pages->{user_edit} = [ undef, undef ];
@@ -1194,5 +1193,18 @@ sub traffic_management_options {
         _("No"),
     ];
 }
+
+=head2 reputation_increment_states/reputation_decrement_states
+
+Get a list of states that cause the reporting user's reputation to be
+incremented/decremented, if a report is changed to this state upon inspection.
+
+If called in array context then returns an array of names, otherwise returns a
+HASHREF.
+
+=cut
+
+sub reputation_increment_states { return wantarray ? () : {} };
+sub reputation_decrement_states { return wantarray ? () : {} };
 
 1;
