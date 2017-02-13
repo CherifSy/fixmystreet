@@ -65,6 +65,7 @@ FixMyStreet::override_config {
 
     subtest "test inspect & instruct submission" => sub {
         $report->unset_extra_metadata('inspected');
+        $report->state('confirmed');
         $report->update;
         $report->inspection_log_entry->delete;
         my $reputation = $report->user->get_extra_metadata("reputation");
