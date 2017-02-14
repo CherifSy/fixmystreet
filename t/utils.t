@@ -99,5 +99,10 @@ is Utils::prettify_duration(86400+3600+60+1, 'day'), '1 day';
 is Utils::prettify_duration(86400+3600+60+1, 'hour'), '1 day, 1 hour';
 is Utils::prettify_duration(86400+3600+60+1, 'minute'), '1 day, 1 hour, 1 minute';
 is Utils::prettify_duration(20, 'minute'), 'less than a minute';
+# prettify_duration should choose a $nearest sensibly if it's not given
+is Utils::prettify_duration(12*5*7*86400+3600+60+1), '1 year';
+is Utils::prettify_duration(7*86400+3600+60+1), '1 week';
+is Utils::prettify_duration(14*86400+3600+60+1), '2 weeks';
+is Utils::prettify_duration(1800), '30 minutes';
 
 done_testing();
