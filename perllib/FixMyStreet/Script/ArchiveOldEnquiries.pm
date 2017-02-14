@@ -51,9 +51,12 @@ sub archive {
         id => \@user_ids
     });
 
-    printf("%d users will receive closure emails.\n", $users->count);
+    my $user_count = $users->count;
+    printf("%d users will receive closure emails.\n", $user_count);
 
+    my $i = 0;
     while ( my $user = $users->next ) {
+        printf("%d/%d: User ID %d\n", $i++, $user_count, $user->id);
         send_email_and_close($user);
     }
 
@@ -96,7 +99,7 @@ sub send_email_and_close {
     );
 
     # Send email
-    printf("Sending email about %d reports to user %d: ", scalar(@problems), $user->id);
+    printf("    Sending email about %d reports: ", scalar(@problems));
     my $email_result = FixMyStreet::Email::send_cron(
         $problems->result_source->schema,
         'archive.txt',
@@ -110,7 +113,7 @@ sub send_email_and_close {
         $problems[0]->lang,
     );
 
-    printf("done.\nClosing reports: ");
+    printf("done.\n    Closing reports: ");
 
     $problems->update({ state => 'closed' });
     printf("done.\n");
