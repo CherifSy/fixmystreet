@@ -685,16 +685,33 @@ sub body {
     return $body;
 }
 
-=head2 weeks_ago
 
-  Returns how long ago a problem was reported in weeks
-
+=head2 time_ago
+  Returns how long ago a problem was reported in an appropriately
+  prettified duration, depending on the duration.
 =cut
 
-sub weeks_ago {
-  my $self = shift;
+sub time_ago {
+    my ( $self, $date ) = @_;
+    $date ||= 'confirmed';
+    my $duration = time() - $self->$date->epoch;
+    my $nearest;
 
-  return Utils::prettify_duration( time() - $self->confirmed->epoch, 'week' );
+    if ($duration < 3600) {
+      $nearest = 'minute';
+    } elsif ($duration < 3600*24) {
+      $nearest = 'hour';
+    } elsif ($duration < 3600*24*7) {
+      $nearest = 'day';
+    } elsif ($duration < 3600*24*7*4) {
+      $nearest = 'week';
+    } elsif ($duration < 3600*24*7*4*12) {
+      $nearest = 'month';
+    } else {
+      $nearest = 'year';
+    }
+
+    return Utils::prettify_duration( $duration, $nearest );
 }
 
 =head2 response_templates

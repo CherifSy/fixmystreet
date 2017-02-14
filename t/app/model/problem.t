@@ -775,15 +775,6 @@ subtest 'check duplicate reports' => sub {
     is $problem2->duplicates->[0]->title, $problem1->title, 'problem2 includes problem1 in duplicates';
 };
 
-subtest 'get report time ago in weeks' => sub {
-    my ($problem) = $mech->create_problems_for_body(1, $body_ids{2651}, 'TITLE');
-    $problem->update( {
-        confirmed => DateTime->now->subtract( weeks => 2)
-    } );
-
-    is $problem->weeks_ago, '2 weeks', 'problem returns time ago in weeks';
-};
-
 subtest 'generates a tokenised url for a user' => sub {
     my ($problem) = $mech->create_problems_for_body(1, $body_ids{2651}, 'TITLE');
     my $url = $problem->tokenised_url($user);
@@ -808,6 +799,50 @@ subtest 'stores params in a token' => sub {
     } );
 
     is_deeply $token_obj->data->{p}, { foo => 'bar', baz => 'boo'}, 'token has correct params';
+};
+
+subtest 'get report time ago in appropriate format' => sub {
+    my ($problem) = $mech->create_problems_for_body(1, $body_ids{2651}, 'TITLE');
+
+    $problem->update( {
+      confirmed => DateTime->now->subtract( minutes => 2)
+    } );
+    is $problem->time_ago, '2 minutes', 'problem returns time ago in minutes';
+
+    $problem->update( {
+      confirmed => DateTime->now->subtract( hours => 18)
+    } );
+    is $problem->time_ago, '18 hours', 'problem returns time ago in hours';
+
+    $problem->update( {
+      confirmed => DateTime->now->subtract( days => 4)
+    } );
+    is $problem->time_ago, '4 days', 'problem returns time ago in days';
+
+    $problem->update( {
+      confirmed => DateTime->now->subtract( weeks => 3 )
+    } );
+    is $problem->time_ago, '3 weeks', 'problem returns time ago in weeks';
+
+    $problem->update( {
+      confirmed => DateTime->now->subtract( months => 4 )
+    } );
+    is $problem->time_ago, '4 months', 'problem returns time ago in months';
+
+    $problem->update( {
+      confirmed => DateTime->now->subtract( years => 2 )
+    } );
+    is $problem->time_ago, '2 years', 'problem returns time ago in years';
+
+};
+
+subtest 'time ago works with other dates' => sub {
+    my ($problem) = $mech->create_problems_for_body(1, $body_ids{2651}, 'TITLE');
+
+    $problem->update( {
+      lastupdate => DateTime->now->subtract( days => 4)
+    } );
+    is $problem->time_ago('lastupdate'), '4 days', 'problem returns last updated time ago in days';
 };
 
 END {

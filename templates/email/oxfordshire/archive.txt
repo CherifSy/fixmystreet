@@ -17,7 +17,7 @@ the link marked 'Reopen?' by a report.
 
 [% report.title %]
 
-Reported [% report.weeks_ago %] ago.
+Reported [% report.time_ago %] ago.
 
 Reopen? [% cobrand.base_url_for_report( report ) %][% report.tokenised_url( user, { reopen => 'true' } ) %]#update_form
 
