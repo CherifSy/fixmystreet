@@ -76,7 +76,7 @@ sub send_email_and_close {
     my ($user) = @_;
 
     my $problems = $user->problems->search($query, {
-        order_by => 'confirmed',
+        order_by => { -desc => 'confirmed' },
     });
 
     my @problems = $problems->all;
