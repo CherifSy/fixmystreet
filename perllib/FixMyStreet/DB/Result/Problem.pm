@@ -705,6 +705,18 @@ sub response_priorities {
     return $self->result_source->schema->resultset('ResponsePriority')->for_bodies($self->bodies_str_ids, $self->category);
 }
 
+=head2 defect_types
+
+Returns all DefectTypes attached to this problem's category/contact, in
+alphabetical order of name.
+
+=cut
+
+sub defect_types {
+    my $self = shift;
+    return $self->result_source->schema->resultset('DefectType')->for_bodies($self->bodies_str_ids, $self->category);
+}
+
 # returns true if the external id is the council's ref, i.e., useful to publish it
 # (by way of an example, the Oxfordshire send method returns a useful reference when
 # it succeeds, so that is the ref we should show on the problem report page).
