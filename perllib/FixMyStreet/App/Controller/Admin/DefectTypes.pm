@@ -1,6 +1,7 @@
 package FixMyStreet::App::Controller::Admin::DefectTypes;
 use Moose;
 use namespace::autoclean;
+use mySociety::ArrayUtils;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -76,9 +77,9 @@ sub edit : Path : Args(2) {
         }
 
         $defect_type->update_or_insert;
-
         my @live_contact_ids = map { $_->id } @live_contacts;
-        my @new_contact_ids = grep { $c->get_param("contacts[$_]") } @live_contact_ids;
+        my @new_contact_ids = $c->get_param_list('categories');
+        @new_contact_ids = @{ mySociety::ArrayUtils::intersection(\@live_contact_ids, \@new_contact_ids) };
         $defect_type->contact_defect_types->search({
             contact_id => { '!=' => \@new_contact_ids },
         })->delete;

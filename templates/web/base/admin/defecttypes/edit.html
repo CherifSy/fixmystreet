@@ -23,7 +23,8 @@
         [% loc('If you only want this defect type to be an option for specific categories, pick them here. By default they will show for all categories.') %]
       </p>
     </div>
-    [% INCLUDE 'admin/category-checkboxes.html' %]
+
+    [% INCLUDE 'admin/category-multiselect.html' %]
 
     [% TRY %][% INCLUDE 'admin/defecttypes/extra_fields.html' %][% CATCH file %][% END %]
 
