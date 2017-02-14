@@ -52,6 +52,15 @@ __PACKAGE__->has_many(
 # Created by DBIx::Class::Schema::Loader v0.07035 @ 2017-02-13 15:11:11
 # DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:BBLjb/aAoTKJZerdYCeBMQ
 
+__PACKAGE__->many_to_many( contacts => 'contact_defect_types', 'contact' );
 
-# You can replace this text with custom code or comments, and it will be preserved on regeneration
+__PACKAGE__->load_components("+FixMyStreet::DB::RABXColumn");
+__PACKAGE__->rabx_column('extra');
+
+use Moo;
+use namespace::clean -except => [ 'meta' ];
+
+with 'FixMyStreet::Roles::Extra';
+
+
 1;

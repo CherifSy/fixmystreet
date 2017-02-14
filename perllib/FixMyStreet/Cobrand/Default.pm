@@ -730,6 +730,7 @@ sub available_permissions {
             category_edit => _("Add/edit problem categories"),
             template_edit => _("Add/edit response templates"),
             responsepriority_edit => _("Add/edit response priorities"),
+            defect_type_edit => _("Add/edit defect types"),
         },
     };
 }

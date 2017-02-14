@@ -88,6 +88,7 @@ with 'FixMyStreet::Roles::Extra';
 
 __PACKAGE__->many_to_many( response_templates => 'contact_response_templates', 'response_template' );
 __PACKAGE__->many_to_many( response_priorities => 'contact_response_priorities', 'response_priority' );
+__PACKAGE__->many_to_many( defect_types => 'contact_defect_types', 'defect_type' );
 
 sub get_metadata_for_input {
     my $self = shift;
